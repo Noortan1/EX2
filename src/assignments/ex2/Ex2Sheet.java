@@ -34,6 +34,7 @@ public class Ex2Sheet implements Sheet {
     @Override
     public String value(int x, int y) {
         String ans = Ex2Utils.EMPTY_CELL;
+
         Cell c = get(x, y);
         if (c != null) {
             ans = c.toString();
@@ -88,6 +89,7 @@ public class Ex2Sheet implements Sheet {
         List<CellWithDepth> cells = new ArrayList<>();
         for (int x = 0; x < width(); x++) {
             for (int y = 0; y < height(); y++) {
+                eval(x, y);
                 cells.add(new CellWithDepth(x, y, depths[x][y]));
             }
         }
@@ -164,37 +166,37 @@ public class Ex2Sheet implements Sheet {
         }
     }
 
-    private int calculateDepth(int x, int y, boolean[][] visited) {
-        if (visited == null || x < 0 || x >= width() || y < 0 || y >= height()) {
+    private int calculateDepth(int x, int y, boolean[][] CICK) {
+        if (CICK == null || x < 0 || x >= CICK.length || y < 0 || y >= CICK[0].length) {
             return Integer.MAX_VALUE;
         }
 
-        if (visited[x][y]) {
+        if (CICK[x][y]) {
             return Integer.MAX_VALUE;
         }
 
-        visited[x][y] = true;
+        CICK[x][y] = true;
 
-        String cellValue = value(x, y);
+        String COUNT = value(x, y);
 
-        if (cellValue.startsWith("=")) {
-            String formula = cellValue.substring(1).replaceAll(" ", "");
-            List<String> references = getCellReferences(formula);
+        if (COUNT.startsWith("=")) {
+            String BITUI = COUNT.substring(1).replaceAll(" ", "");
+            List<String> sour = cellsour(BITUI);
             int maxDepth = 0;
 
-            for (String ref : references) {
-                int[] coords = getCoordinates(ref);
-                if (coords == null || !isIn(coords[0], coords[1])) {
+            for (String ref : sour) {
+                int[] co = Taeim(ref);
+                if (co == null || !isIn(co[0], co[1])) {
                     return Integer.MAX_VALUE;
                 }
 
-                int refDepth = calculateDepth(coords[0], coords[1], visited);
-                if (refDepth == Integer.MAX_VALUE) {
+                int depDepth = calculateDepth(co[0], co[1], CICK);
+                if (depDepth == Integer.MAX_VALUE) {
                     return Integer.MAX_VALUE;
                 }
 
-                if (refDepth > maxDepth) {
-                    maxDepth = refDepth;
+                if (depDepth > maxDepth) {
+                    maxDepth = depDepth;
                 }
             }
 
@@ -222,73 +224,104 @@ public class Ex2Sheet implements Sheet {
             first.remove(Pair.of(x, y));
             return "ERROR_FORM";
         }
-        String cellValue = cell.toString();
-        String computedValue = computeCellValue(cellValue);
+        String ll = cell.toString();
+        String ans = computer(ll);
         first.remove(Pair.of(x, y));
 
-        if (computedValue.equals("ERROR_FORM")) {
+        if (ans.equals("ERROR_FORM")) {
             cell.setType(Ex2Utils.ERR_FORM_FORMAT);
-        } else if (computedValue.equals("Circular Dependency")) {
+        } else if (ans.equals("Circular Dependency")) {
             cell.setType(Ex2Utils.ERR_CYCLE_FORM);
-        } else if (cellValue.startsWith("=")) {
-            if (isValidFormula(cellValue.substring(1))) {
+        } else if (ll.startsWith("=")) {
+            if (isValidFormula(ll.substring(1))) {
                 cell.setType(Ex2Utils.FORM);
             } else {
                 cell.setType(Ex2Utils.ERR_FORM_FORMAT);
             }
-        } else if (isNumeric(computedValue)) {
+        } else if (isNum(ans)) {
             cell.setType(Ex2Utils.NUMBER);
         } else {
             cell.setType(Ex2Utils.TEXT);
         }
 
-        return computedValue;
+        return ans;
     }
 
-    private boolean isNumeric(String s) {
+    private boolean isValidFormula(String formula) {
+        if (formula == null || formula.trim().isEmpty()) {
+            return false;
+        }
+        formula = formula.trim();
+
+        if (formula.contains("**") || formula.contains("++") ||
+                formula.endsWith("+") || formula.endsWith("-") ||
+                formula.endsWith("*") || formula.endsWith("/")) {
+            return false;
+        }
+
+        int parenthesesCount = 0;
+        for (char c : formula.toCharArray()) {
+            if (c == '(') parenthesesCount++;
+            if (c == ')') parenthesesCount--;
+            if (parenthesesCount < 0) return false;
+        }
+        if (parenthesesCount != 0) return false;
+
+        if (formula.matches("^[A-Z]\\d+$")) {
+            return true;
+        }
+
+        try {
+            Double.parseDouble(formula);
+            return true;
+        } catch (NumberFormatException e) {
+            return formula.matches(".*[+\\-*/].*") &&
+                    !formula.matches(".*[^A-Z0-9+\\-*/()\\s\\.].*");
+        }
+    }
+    boolean isNum(String s) {
         try {
             Double.parseDouble(s);
             return true;
-        } catch (Exception e) {
-            return false;
         }
+        catch (Exception _) {return false;}
     }
 
-    private String computeCellValue(String cellValue) {
-        if (cellValue.startsWith("=")) {
-            String formula = cellValue.substring(1).replaceAll(" ", "");
-            List<String> references = getCellReferences(formula);
-            for (String ref : references) {
-                int[] coords = getCoordinates(ref);
-                if (coords == null || !isIn(coords[0], coords[1])) {
+    public String computer(String ll) {
+        if (ll.startsWith("=")) {
+            String BITUI = ll.substring(1).replaceAll(" ", "");
+            List<String> sour = cellsour(BITUI);
+            for (String ref : sour) {
+                int[] co = Taeim(ref);
+                if (co == null || !isIn(co[0], co[1])) {
                     return "ERROR_FORM";
                 }
-                String evaluatedValue = eval(coords[0], coords[1]);
+                String evaluatedValue = eval(co[0], co[1]);
                 if (evaluatedValue.equals("Circular Dependency") || evaluatedValue.equals("ERROR_FORM")) {
                     return evaluatedValue;
                 }
-                formula = formula.replace(ref, evaluatedValue);
+                BITUI = BITUI.replace(ref, evaluatedValue);
             }
             try {
-                return evaluateExpression(formula);
-            } catch (Exception e) {
+                return evaluateExpression(BITUI);
+            } catch (NumberFormatException e) {
                 return "ERROR_FORM";
             }
         } else {
-            return cellValue;
+            return ll;
         }
     }
 
-    private List<String> getCellReferences(String formula) {
-        List<String> references = new ArrayList<>();
-        Matcher m = Pattern.compile("[A-Za-z]+\\d+").matcher(formula);
+    private List<String> cellsour(String BITUI) {
+        List<String> sour = new ArrayList<>();
+        Matcher m = Pattern.compile("[A-Za-z]+\\d+").matcher(BITUI);
         while (m.find()) {
-            references.add(m.group());
+            sour.add(m.group());
         }
-        return references;
+        return sour;
     }
 
-    private int[] getCoordinates(String ref) {
+    private int[] Taeim(String ref) {
         String colPart = ref.replaceAll("\\d", "");
         String rowPart = ref.replaceAll("[A-Za-z]", "");
         int x = colPart.toUpperCase().charAt(0) - 'A';
@@ -380,39 +413,6 @@ public class Ex2Sheet implements Sheet {
         }.parse();
     }
 
-    private boolean isValidFormula(String formula) {
-        if (formula == null || formula.trim().isEmpty()) {
-            return false;
-        }
-        formula = formula.trim();
-
-        if (formula.contains("**") || formula.contains("++") ||
-                formula.endsWith("+") || formula.endsWith("-") ||
-                formula.endsWith("*") || formula.endsWith("/")) {
-            return false;
-        }
-
-        int parenthesesCount = 0;
-        for (char c : formula.toCharArray()) {
-            if (c == '(') parenthesesCount++;
-            if (c == ')') parenthesesCount--;
-            if (parenthesesCount < 0) return false;
-        }
-        if (parenthesesCount != 0) return false;
-
-        if (formula.matches("^[A-Z]\\d+$")) {
-            return true;
-        }
-
-        try {
-            Double.parseDouble(formula);
-            return true;
-        } catch (NumberFormatException e) {
-            return formula.matches(".*[+\\-*/].*") &&
-                    !formula.matches(".*[^A-Z0-9+\\-*/()\\s\\.].*");
-        }
-    }
-
     public static void main(String[] args) {
         Ex2Sheet sheet = new Ex2Sheet(10, 10);
         sheet.set(0, 0, "10");
@@ -425,7 +425,7 @@ public class Ex2Sheet implements Sheet {
         sheet.eval();
         for (int x = 0; x < 3; x++) {
             for (int y = 0; y < 3; y++) {
-                System.out.println("Cell (" + x + "," + y + "): " + sheet.value(x, y) + " Type: " + sheet.get(x, y).getType());
+                System.out.println("Cell (" + x + "," + y + "): " + sheet.value(x, y));
             }
         }
     }

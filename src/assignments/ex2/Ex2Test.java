@@ -2,8 +2,6 @@ package assignments.ex2;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
-import org.junit.Test;
-import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,7 +31,7 @@ public class Ex2Test {
     }
 
     @Test
-    public void first() {
+    public void testGetByCoordinates() {
         Ex2Sheet sheet = new Ex2Sheet(3, 3);
         sheet.set(0, 0, "10");
         sheet.set(1, 1, "20");
@@ -53,7 +51,7 @@ public class Ex2Test {
     }
 
     @Test
-    public void testCircal() {
+    public void testCircularDependency() {
         Ex2Sheet sheet = new Ex2Sheet(3, 3);
         sheet.set(0, 0, "=A1");
         sheet.eval();
@@ -76,7 +74,7 @@ public class Ex2Test {
     public void testEval() {
         Ex2Sheet sheet = new Ex2Sheet(3, 3);
         sheet.set(0, 0, "10");
-        sheet.set(1,0,"15");
+        sheet.set(1, 0, "15");
         sheet.set(0, 1, "=A1+5");
         sheet.set(0, 2, "=B1*2");
         sheet.eval();
@@ -86,10 +84,10 @@ public class Ex2Test {
     }
 
     @Test
-    public void testsaveAndload() throws IOException {
+    public void testSaveAndLoad() throws IOException {
         Ex2Sheet sheet = new Ex2Sheet(3, 3);
         sheet.set(0, 0, "8");
-        sheet.set(1,0,"6");
+        sheet.set(1, 0, "6");
         sheet.set(0, 1, "=A1+9");
         sheet.set(0, 2, "=B1*2");
         sheet.eval();
@@ -109,7 +107,7 @@ public class Ex2Test {
     }
 
     @Test
-    public void testNontBitui() {
+    public void testNonFormulaValues() {
         Ex2Sheet sheet = new Ex2Sheet();
         assertEquals("111122223333", sheet.computer("111122223333"));
         assertEquals("2345678", sheet.computer("2345678"));
@@ -118,16 +116,15 @@ public class Ex2Test {
     }
 
     @Test
-    public void testHUki() {
+    public void testInvalidFormulas() {
         Ex2Sheet sheet = new Ex2Sheet();
         assertEquals("ERROR_FORM", sheet.computer("=5*"));
         assertEquals("ERROR_FORM", sheet.computer("=5*abc"));
         assertEquals("ERROR_FORM", sheet.computer("=5*Z100"));
     }
 
-
     @Test
-    public void test1() {
+    public void testCellEntry1() {
         CellEntry cell = new CellEntry();
         cell.Index2D_Impl("B9");
         assertEquals(1, cell.getX());
@@ -135,8 +132,9 @@ public class Ex2Test {
         assertTrue(cell.isValid());
         assertEquals("B9", cell.toString());
     }
+
     @Test
-    public void test2() {
+    public void testCellEntry2() {
         CellEntry cell = new CellEntry();
         cell.Index2D_Impl(2, 8);
         assertEquals(2, cell.getX());
@@ -146,7 +144,7 @@ public class Ex2Test {
     }
 
     @Test
-    public void test3() {
+    public void testCellEntry3() {
         CellEntry cell = new CellEntry();
         cell.Index2D_Impl(26, 100);
         assertEquals(26, cell.getX());
@@ -154,8 +152,9 @@ public class Ex2Test {
         assertFalse(cell.isValid());
         assertEquals("", cell.toString());
     }
+
     @Test
-    public void testfo() {
+    public void testSCell() {
         SCell cell = new SCell("10");
         cell.setinfo("=A1+B1");
         assertEquals(Ex2Utils.FORM, cell.getType());
@@ -165,6 +164,4 @@ public class Ex2Test {
         assertEquals(Ex2Utils.TEXT, cell.getType());
         assertEquals("Invalid Formula", cell.getinfo());
     }
-
-
 }

@@ -233,11 +233,7 @@ public class Ex2Sheet implements Sheet {
         } else if (ans.equals("Circular Dependency")) {
             cell.setType(Ex2Utils.ERR_CYCLE_FORM);
         } else if (ll.startsWith("=")) {
-            if (isValidFormula(ll.substring(1))) {
-                cell.setType(Ex2Utils.FORM);
-            } else {
-                cell.setType(Ex2Utils.ERR_FORM_FORMAT);
-            }
+            cell.setType(Ex2Utils.FORM);
         } else if (isNum(ans)) {
             cell.setType(Ex2Utils.NUMBER);
         } else {
@@ -245,39 +241,6 @@ public class Ex2Sheet implements Sheet {
         }
 
         return ans;
-    }
-
-    private boolean isValidFormula(String formula) {
-        if (formula == null || formula.trim().isEmpty()) {
-            return false;
-        }
-        formula = formula.trim();
-
-        if (formula.contains("**") || formula.contains("++") ||
-                formula.endsWith("+") || formula.endsWith("-") ||
-                formula.endsWith("*") || formula.endsWith("/")) {
-            return false;
-        }
-
-        int parenthesesCount = 0;
-        for (char c : formula.toCharArray()) {
-            if (c == '(') parenthesesCount++;
-            if (c == ')') parenthesesCount--;
-            if (parenthesesCount < 0) return false;
-        }
-        if (parenthesesCount != 0) return false;
-
-        if (formula.matches("^[A-Z]\\d+$")) {
-            return true;
-        }
-
-        try {
-            Double.parseDouble(formula);
-            return true;
-        } catch (NumberFormatException e) {
-            return formula.matches(".*[+\\-*/].*") &&
-                    !formula.matches(".*[^A-Z0-9+\\-*/()\\s\\.].*");
-        }
     }
     boolean isNum(String s) {
         try {
